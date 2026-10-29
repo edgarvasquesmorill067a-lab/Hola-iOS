@@ -11,7 +11,7 @@ targets:
     type: application
     platform: iOS
     sources:
-      - Sources
+      - HolaApp.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ejemplo.hola
