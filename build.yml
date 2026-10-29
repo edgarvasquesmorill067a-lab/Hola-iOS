@@ -1,0 +1,47 @@
+
+name: Build Hola iOS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Instalar XcodeGen
+        run: brew install xcodegen
+
+      - name: Generar proyecto Xcode
+        run: xcodegen generate
+
+      - name: Compilar app iOS
+        run: |
+          xcodebuild \
+            -project Hola.xcodeproj \
+            -scheme Hola \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Empaquetar IPA sin firma
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/Hola.app Payload/
+          /usr/bin/zip -qry Hola.ipa Payload
+
+      - name: Publicar IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hola-IPA
+          path: Hola.ipa
+          if-no-files-found: error
+          retention-days: 7
